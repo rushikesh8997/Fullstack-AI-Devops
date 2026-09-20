@@ -9,6 +9,6 @@ public class HelloController {
     String env = System.getenv().getOrDefault("ENV_VALUE", "No env set");
     String hostname = InetAddress.getLocalHost().getHostName();
     
-    return Map.of("message", "Hello from Simple App (Spring Boot)", "env", env, "container", hostname);
+    return Map.of("message", "Hello from Simple App (SpringBoot)", "env", env, "container", hostname);
   }
 }
