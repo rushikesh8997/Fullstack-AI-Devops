@@ -18,6 +18,6 @@ class HelloControllerTest {
     void testHelloEndpoint() throws Exception {
         mockMvc.perform(get("/"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("Hello from Simple App (Spring Boot)"));
+                .andExpect(jsonPath("$.message").value("Hello from Simple App (SpringBoot)"));
     }
 }
