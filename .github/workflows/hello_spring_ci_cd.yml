@@ -1,4 +1,4 @@
-name: Hello Spring Boot APP to Docker
+name: Hello Spring Boot APP to AWS EKS
 
 on:
   workflow_dispatch:
@@ -63,3 +63,35 @@ jobs:
               ${{ secrets.DOCKERHUB_USERNAME }}/hello-spring:latest
               ${{ secrets.DOCKERHUB_USERNAME }}/hello-spring:${{ github.sha }}
               ${{ secrets.DOCKERHUB_USERNAME }}/hello-spring:${{ github.ref_name }}
+  
+  deploy-aws-eks:
+    runs-on: ubuntu-latest
+    needs: docker-build-push
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v6.3.0
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-2
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v4 #This installs/configures the kubectl command on the GitHub runner.
+
+      - name: Update kubeconfig for EKS
+        run: |
+          aws eks update-kubeconfig --name hello-cluster --region ap-south-1 
+        #it says Give me the Kubernetes connection configuration for the EKS cluster called hello-cluster.
+        #AWS CLI then creates/updates the kubeconfig on the GitHub runner.
+
+      - name: Verify connection
+        run: kubectl get nodes
+
+      - name: Deploy to AWS (kubernetes)
+        run: kubectl apply -f k8s/aws/app1-hello 
+        #Apply the Kubernetes configuration files located in k8s/aws/app1-hello.
+        #So resources inside k8s/aws/app1-hello will be created/updated in your EKS cluster.
